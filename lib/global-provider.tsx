@@ -1,9 +1,10 @@
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, useContext, useState } from "react";
+import { TouristPlace } from "../types/types";
 import { getCurrentUser } from "./appwrite";
 import { useAppwrite } from "./useAppwrite";
 
 export interface User {
-  $id: string;
+  id: string;
   name: string;
   email: string;
   avatar: string;
@@ -13,11 +14,19 @@ interface GlobalContextType {
   isLoggedIn: boolean;
   user: User | null;
   loading: boolean;
-  refetch: (newParams?: Record<string, string | number>) => Promise<void>;
+  refetch: () => Promise<void>;
+  favorites: TouristPlace[];
+  addToFavorites: (place: TouristPlace) => void;
+  removeFromFavorites: (place: TouristPlace) => void;
+  isPlaceFavorite: (place: TouristPlace) => boolean;
+  selectedRoute: TouristPlace[];
+  addToRoute: (place: TouristPlace) => void;
+  removeFromRoute: (place: TouristPlace) => void;
+  clearRoute: () => void;
 }
 
 interface GlobalProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const GlobalContext = createContext<GlobalContextType>({
@@ -25,17 +34,64 @@ const GlobalContext = createContext<GlobalContextType>({
   user: null,
   loading: false,
   refetch: async () => {},
+  favorites: [],
+  addToFavorites: () => {},
+  removeFromFavorites: () => {},
+  isPlaceFavorite: () => false,
+  selectedRoute: [],
+  addToRoute: () => {},
+  removeFromRoute: () => {},
+  clearRoute: () => {},
 });
 
 export const GlobalProvider = ({ children }: GlobalProviderProps) => {
   const { data: user, loading, refetch } = useAppwrite({ fn: getCurrentUser });
+  const [favorites, setFavorites] = useState<TouristPlace[]>([]);
+  const [selectedRoute, setSelectedRoute] = useState<TouristPlace[]>([]);
 
   const isLoggedIn = !!user;
 
-  // console.log(JSON.stringify(user, null, 2));  // вывод пользователя для проверки
+  const addToFavorites = (place: TouristPlace) => {
+    setFavorites((prev) => [...prev, place]);
+  };
+
+  const removeFromFavorites = (place: TouristPlace) => {
+    setFavorites((prev) => prev.filter((p) => p.id !== place.id));
+  };
+
+  const isPlaceFavorite = (place: TouristPlace) => {
+    return favorites.some((p) => p.id === place.id);
+  };
+
+  const addToRoute = (place: TouristPlace) => {
+    setSelectedRoute((prev) => [...prev, place]);
+  };
+
+  const removeFromRoute = (place: TouristPlace) => {
+    setSelectedRoute((prev) => prev.filter((p) => p.id !== place.id));
+  };
+
+  const clearRoute = () => {
+    setSelectedRoute([]);
+  };
 
   return (
-    <GlobalContext.Provider value={{ isLoggedIn, user, loading, refetch }}>
+    <GlobalContext.Provider
+      value={{
+        isLoggedIn,
+        user,
+        loading,
+        refetch,
+        favorites,
+        addToFavorites,
+        removeFromFavorites,
+        isPlaceFavorite,
+        selectedRoute,
+        addToRoute,
+        removeFromRoute,
+        clearRoute,
+      }}
+    >
       {children}
     </GlobalContext.Provider>
   );

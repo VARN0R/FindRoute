@@ -1,4 +1,5 @@
 import { GlobalProvider } from "@/lib/global-provider";
+import Mapbox from "@rnmapbox/maps";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
@@ -19,6 +20,13 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    Mapbox.setAccessToken(`${process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN!}`);
+
+    console.log(`${process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN!}`);
+    // Mapbox.setConnected(true);
+  }, []);
 
   if (!fontsLoaded) {
     return null;

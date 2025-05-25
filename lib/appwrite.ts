@@ -28,6 +28,8 @@ export async function login() {
     // заготовка url, на который мы перенаправим пользователя после успешной авторизации
     const redirectUri = Linking.createURL("/");
 
+    console.log("Redirect URI:", redirectUri);
+
     // выполняем авторизацию с помощью google
     const response = await account.createOAuth2Token(
       OAuthProvider.Google,
@@ -86,6 +88,7 @@ export async function getCurrentUser(): Promise<User | null> {
       return {
         ...result,
         avatar: userAvatar.toString(),
+        id: result.$id,
       };
     }
 
@@ -93,5 +96,32 @@ export async function getCurrentUser(): Promise<User | null> {
   } catch (error) {
     console.log(error);
     return null;
+  }
+}
+
+export async function createEmailSession(email: string, password: string) {
+  try {
+    const session = await account.createEmailPasswordSession(email, password);
+
+    return session;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function createAccount(
+  email: string,
+  password: string,
+  name: string
+) {
+  try {
+    // Генерируем ID в правильном формате: только буквы, цифры, точка, дефис и подчеркивание
+    const userId = `user_${Math.random().toString(36).substring(2, 15)}`;
+    const newAccount = await account.create(userId, email, password, name);
+    return newAccount;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }

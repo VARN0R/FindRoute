@@ -3,7 +3,7 @@ import images from "@/constants/images";
 import { login } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/global-provider";
 import { Redirect } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
   Alert,
   Image,
@@ -14,14 +14,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const SingIn = () => {
+const SignIn = () => {
   const { refetch, loading, isLoggedIn } = useGlobalContext();
+  const [redirect, setRedirect] = useState(false);
 
   if (!loading && isLoggedIn) return <Redirect href="/"></Redirect>;
 
-  const handleLogin = async () => {
+  if (redirect) return <Redirect href="/email-sign-in"></Redirect>;
+
+  const handleGoogleLogin = async () => {
     const result = await login();
-    refetch();
+    await refetch();
     if (result) {
       console.log("Login Success");
     } else {
@@ -31,7 +34,7 @@ const SingIn = () => {
 
   return (
     <SafeAreaView className="bg-white h-full">
-      <ScrollView contentContainerClassName="h-full">
+      <ScrollView contentContainerClassName="h-4/6">
         <Image
           source={images.logoWithBelarus}
           className="h-4/6 w-full"
@@ -56,7 +59,7 @@ const SingIn = () => {
           </Text>
 
           <TouchableOpacity
-            onPress={handleLogin}
+            onPress={handleGoogleLogin}
             className="bg-white shadow-md shadow-zinc-300 rounded-full w-full py-4 mt-5"
           >
             <View className="flex flex-row items-center justify-center">
@@ -70,10 +73,21 @@ const SingIn = () => {
               </Text>
             </View>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setRedirect(true)}
+            className="bg-white shadow-md shadow-zinc-300 rounded-full w-full py-4 mt-4"
+          >
+            <View className="flex flex-row items-center justify-center">
+              <Text className="text-lg font-rubik-medium text-black-300">
+                Войти с Email
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default SingIn;
+export default SignIn;

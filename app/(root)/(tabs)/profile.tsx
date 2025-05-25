@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import {
   Alert,
   Image,
@@ -11,6 +12,7 @@ import {
 
 import { logout } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/global-provider";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import icons from "@/constants/icons";
 
@@ -52,6 +54,7 @@ const SettingsItem = ({
 
 const Profile = () => {
   const { user, refetch } = useGlobalContext();
+  const insets = useSafeAreaInsets();
 
   const handleLogout = async () => {
     const result = await logout();
@@ -69,8 +72,11 @@ const Profile = () => {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-32 px-7"
       >
-        <View className="flex flex-row items-center justify-between mt-5">
-          <Text className="text-xl font-rubik-bold">Profile</Text>
+        <View
+          className="flex flex-row items-center justify-between"
+          style={{ marginTop: insets.top }}
+        >
+          <Text className="text-xl font-rubik-bold">Профиль</Text>
           <Image source={icons.bell} className="size-5" />
         </View>
 
@@ -95,11 +101,12 @@ const Profile = () => {
             icon={icons.heart}
             title="Мне нравится"
             colorIcons="black"
+            onPress={() => router.replace("/(root)/(tabs)/favorites")}
           />
           <SettingsItem icon={icons.people} title="Пригласить друзей" />
         </View>
 
-        <View className="flex flex-col border-t mt-5 pt-5 border-primary-200">
+        <View className="mt-10">
           <SettingsItem
             icon={icons.logout}
             title="Выйти из аккаунта"
